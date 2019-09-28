@@ -1,0 +1,7 @@
+{
+  "env": {
+    "MONGO_DB": "TESTDB_NodeJS_Rest_API",
+    "MONGO_USER": "FAR11VEN",
+    "MONGO_USER_PASSWORD": "2YmFa6tdPWelOtB9"
+  }
+}

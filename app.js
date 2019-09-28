@@ -1,55 +1,46 @@
-const express = require('express');
+const express = require("express");
+const morgan = require("morgan");
+const mongoose = require("mongoose");
+
 const app = express();
 
+const productRoutes = require("./api/routes/products");
+const orderRoutes = require("./api/routes/orders");
+
+mongoose.connect(
+  "mongodb+srv://" +
+    process.env.MONGO_USER +
+    ":" +
+    process.env.MONGO_USER_PASSWORD +
+    "@cluster0-n1cyt.gcp.mongodb.net/" +
+    process.env.MONGO_DB +
+    "?retryWrites=true",
+  {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  }
+);
+
+app.use(morgan("dev"));
 app.use(express.json());
 
-const courses =[
-        {id: 1, name : 'java'},
-        {id: 2, name : 'c#'},
-        {id: 3, name : 'php'},
-        {id: 4, name : 'ruby'}
-];
+//routes which handles the requests
+app.use("/api/products", productRoutes);
+app.use("/api/orders", orderRoutes);
 
-app.get('/', (req, res) => {
-
-    res.send('Welcome to get request');
+app.use((req, res, next) => {
+  const error = new Error("Not Found");
+  error.status = 404;
+  next(error);
 });
 
-app.get('/api/courses', (req, res) => {
-
-    res.send(courses);
-});
-
-app.get('/api/courses/:id', (req, res) => {
-
-    const course = courses.find( c => c.id === parseInt(req.params.id));
-    if(!course){//404
-        res.status(404).send('The course with given ID was not found');
-    } else {
-        res.status(200).send(course);
+app.use((error, req, res, next) => {
+  res.status(error.status || 500);
+  res.json({
+    error: {
+      message: error.message
     }
-    
+  });
 });
 
-
-app.post('/api/courses', (req, res) => {
-
-    const course = {
-            id: courses.length + 1,
-            name: req.body.name
-    };
-
-    courses.push(course);
-    res.send(course);
-});
-
-
-
-
-
-//PORT
-const port = process.env.PORT || 3000
-
-app.listen(port, () => {
-    console.log(`Listening on port ${port}...`);
-});
+module.exports = app;
