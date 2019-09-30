@@ -2,6 +2,7 @@
   "env": {
     "MONGO_DB": "TESTDB_NodeJS_Rest_API",
     "MONGO_USER": "FAR11VEN",
-    "MONGO_USER_PASSWORD": "2YmFa6tdPWelOtB9"
+    "MONGO_USER_PASSWORD": "2YmFa6tdPWelOtB9",
+    "MONGO_URI": "mongodb+srv://FAR11VEN:2YmFa6tdPWelOtB9@cluster0-n1cyt.gcp.mongodb.net/TESTDB_NodeJS_Rest_API?retryWrites=true"
   }
 }

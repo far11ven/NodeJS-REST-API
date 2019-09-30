@@ -1,11 +1,72 @@
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
+crypto = require("crypto");
+const multer = require("multer");
+// const storage = multer.diskStorage({
+//   destination: function(req, file, callback) {
+//     callback(null, "./uploads/");
+//   },
+//   filename: function(req, file, callback) {
+//     callback(null, file.originalname);
+//   }
+// });
+
+const GridFsStorage = require("multer-gridfs-storage");
+
+const connection = mongoose.connect(
+  "mongodb+srv://" +
+    process.env.MONGO_USER +
+    ":" +
+    process.env.MONGO_USER_PASSWORD +
+    "@cluster0-n1cyt.gcp.mongodb.net/" +
+    process.env.MONGO_DB +
+    "?retryWrites=true",
+  {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  }
+);
+
+const storage = new GridFsStorage({
+  db: connection,
+  file: (req, file) => {
+    return new Promise((resolve, reject) => {
+      crypto.randomBytes(16, (err, buf) => {
+        if (err) {
+          return reject(err);
+        }
+        const filename = file.originalname;
+        const fileInfo = {
+          filename: filename,
+          bucketName: "uploads"
+        };
+        resolve(fileInfo);
+      });
+    });
+  }
+});
+
+const fileFilter = (req, file, callback) => {
+  if (file.mimetype === "image/jpeg" || file.mimetype === "image/png") {
+    callback(null, true);
+  } else {
+    callback(new Error("productImage is not a valid file type"), true);
+  }
+};
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 1024 * 1024 * 5
+  },
+  fileFilter: fileFilter
+});
+
 const Product = require("../../models/product");
 
 router.get("/", (req, res, next) => {
   Product.find()
-    .select("-__v")
+    .select("-__v") //removes __v from mongo doc
     .exec()
     .then(docs => {
       console.log(docs);
@@ -61,11 +122,13 @@ router.get("/:productId", (req, res, next) => {
     });
 });
 
-router.post("/", (req, res, next) => {
+router.post("/", upload.single("productImage"), (req, res, next) => {
+  console.log(" file ==> ", req.file);
   const product = new Product({
     _id: new mongoose.Types.ObjectId(),
     name: req.body.name,
-    price: req.body.price
+    price: req.body.price,
+    productImage: "asd"
   });
 
   product
