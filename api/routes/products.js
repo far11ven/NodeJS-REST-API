@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const crypto = require("crypto");
 const Grid = require("gridfs-stream");
 const multer = require("multer");
+const GridFsStorage = require("multer-gridfs-storage");
 // const storage = multer.diskStorage({
 //   destination: function(req, file, callback) {
 //     callback(null, "./uploads/");
@@ -12,9 +13,8 @@ const multer = require("multer");
 //     callback(null, file.originalname);
 //   }
 // });
-
-const GridFsStorage = require("multer-gridfs-storage");
-
+const checkAuth = require("../middleware/auth");
+const Product = require("../models/product");
 const getProductImageName = "Prod_" + Date.now();
 const connection = mongoose.connect(
   "mongodb+srv://" +
@@ -63,8 +63,6 @@ const upload = multer({
   },
   fileFilter: fileFilter
 });
-
-const Product = require("../../models/product");
 
 router.get("/", (req, res, next) => {
   Product.find()
@@ -193,7 +191,7 @@ router.get("/:productId/image", (req, res, next) => {
   }
 });
 
-router.post("/", upload.single("productImage"), (req, res, next) => {
+router.post("/", checkAuth, upload.single("productImage"),  (req, res, next) => {
   console.log(" file ==> ", req.file);
 
   const productId = new mongoose.Types.ObjectId();
@@ -240,7 +238,7 @@ router.post("/", upload.single("productImage"), (req, res, next) => {
     });
 });
 
-router.patch("/:productId", (req, res, next) => {
+router.patch("/:productId", checkAuth, (req, res, next) => {
   const id = req.params.productId;
   const updateOps = {};
   for (const ops of req.body) {
@@ -264,7 +262,7 @@ router.patch("/:productId", (req, res, next) => {
     });
 });
 
-router.delete("/:productId", (req, res, next) => {
+router.delete("/:productId",checkAuth, (req, res, next) => {
   const id = req.params.productId;
 
   Product.remove({ _id: id })
