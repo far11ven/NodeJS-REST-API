@@ -5,6 +5,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const User = require("../models/user");
+const checkAuth = require("../middleware/auth");
 
 router.post("/signup", (req, res, next) => {
   User.find({
@@ -102,7 +103,7 @@ router.post("/login", (req, res, next) => {
     });
 });
 
-router.delete("/:userId", (req, res, next) => {
+router.delete("/:userId", checkAuth, (req, res, next) => {
   const userId = req.params.userId;
   User.remove({ _id: userId })
     .then(result => {
