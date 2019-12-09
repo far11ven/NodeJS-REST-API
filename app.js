@@ -3,21 +3,9 @@ const cors = require("cors");
 const morgan = require("morgan");
 const mongoose = require("mongoose");
 
-const whitelistedURLs = ['http://localhost:3000', 'https://example.com']
-const corsOptions = {
-  origin: function (origin, callback) {
-    if (whitelistedURLs.indexOf(origin) !== -1) {
-      callback(null, true)
-    } else {
-      callback(new Error('Not allowed by CORS'))
-    }
-  }
-}
-
-// pass corsOptions to cors:
-app.use(cors(corsOptions));
-
 const app = express();
+
+app.use(cors());
 
 const productRoutes = require("./api/routes/products");
 const orderRoutes = require("./api/routes/orders");

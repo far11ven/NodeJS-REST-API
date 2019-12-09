@@ -73,7 +73,22 @@ exports.get_product_image_by_id = (req, res, next) => {
 
         if (doc) {
           let gfs;
-          const conn = mongoose.createConnection(process.env.MONGO_URI);
+          mongoose.connect(
+            "mongodb+srv://" +
+              process.env.MONGO_USER +
+              ":" +
+              process.env.MONGO_USER_PASSWORD +
+              "@cluster0-n1cyt.gcp.mongodb.net/" +
+              process.env.MONGO_DB +
+              "?retryWrites=true",
+            {
+              useNewUrlParser: true,
+              useUnifiedTopology: true
+            }
+          );
+
+          const conn = mongoose.connection;
+		  
           conn.once("open", () => {
             gfs = Grid(conn.db, mongoose.mongo);
 
@@ -176,6 +191,16 @@ exports.create_a_product = (req, res, next) => {
     });
 };
 
+/**[
+    {
+        "propName": "middleName",
+        "propValue": "https://www.google.com"
+    },
+    {
+        "propName":  "xnmae",
+         "propValue":"https://www.google.com"
+    }
+]**/
 exports.update_a_product_by_id = (req, res, next) => {
   const id = req.params.productId;
   const updateOps = {};
